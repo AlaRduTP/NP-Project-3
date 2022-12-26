@@ -80,6 +80,19 @@ void session::write_header(int http_status) {
     write_chunk("\0", 0);
 }
 
+void session::set_envs() {
+    auto & hdr = request_.header;
+    setenv("REQUEST_METHOD", hdr.request_method.c_str(), 1);
+    setenv("REQUEST_URI", hdr.request_uri.c_str(), 1);
+    setenv("QUERY_STRING", hdr.query_string.c_str(), 1);
+    setenv("SERVER_PROTOCOL", hdr.server_protocol.c_str(), 1);
+    setenv("HTTP_HOST", hdr.http_host.c_str(), 1);
+    setenv("SERVER_ADDR", hdr.server_addr.to_string().c_str(), 1);
+    setenv("SERVER_PORT", std::to_string(hdr.server_port).c_str(), 1);
+    setenv("REMOTE_ADDR", hdr.remote_addr.to_string().c_str(), 1);
+    setenv("REMOTE_PORT", std::to_string(hdr.remote_port).c_str(), 1);
+}
+
 void session::work() {
     int output[2];
     if (pipe(output) == -1) {
@@ -98,13 +111,13 @@ void session::work() {
         dup(output[1]);
         close(output[1]);
 
-        
         char cwd[PATH_MAX];
         getcwd(cwd, sizeof(cwd));
         std::string path(cwd);
         path += request_.header.request_uri;
-
         char * argv[] = {NULL};
+
+        set_envs();
         if (execvp(path.c_str(), argv) == -1) {
             exit(EXIT_FAILURE);
         }

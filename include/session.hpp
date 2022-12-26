@@ -24,6 +24,7 @@ private:
 
     void write_header(int http_status);
     void write_chunk(const char * buf, std::size_t buf_size);
+    void set_envs();
     void work();
 };
    
