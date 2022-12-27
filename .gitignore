@@ -9,3 +9,9 @@ http_server
 
 # Object files
 *.o
+
+# test cases
+test_case/
+
+# templates
+template*
