@@ -4,10 +4,11 @@
 
 #define pass do {} while(0)
 
+using boost::asio::ip::tcp;
 
 namespace http_server {
 
-header::header(boost::asio::ip::tcp::socket & socket) :
+header::header(tcp::socket & socket) :
         server_addr(socket.local_endpoint().address()),
         server_port(socket.local_endpoint().port()),
         remote_addr(socket.remote_endpoint().address()),
@@ -15,7 +16,7 @@ header::header(boost::asio::ip::tcp::socket & socket) :
     pass;
 };
 
-request::request(boost::asio::ip::tcp::socket & socket) :
+request::request(tcp::socket & socket) :
         header(socket) {
     pass;
 };
