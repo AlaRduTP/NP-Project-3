@@ -1,5 +1,6 @@
 CXX := g++
-CXXFLAGS := -std=c++14 -Wall -pedantic -pthread -lboost_system
+CXXFLAGS := -std=c++14 -Wall -pedantic -pthread
+CXX_LDFLAGS := -lpthread -lboost_system
 CXX_INCLUDE_DIRS := ./include /usr/local/include
 CXX_INCLUDE_PARAMS = $(addprefix -I, $(CXX_INCLUDE_DIRS))
 CXX_LIB_DIRS := /usr/local/lib
@@ -18,13 +19,13 @@ OBJECTS = $(HTTP_SERVER_OBJECTS) $(HTTP_CLIENT_OBJECTS)
 all: $(TARGETS)
 
 http_server: $(HTTP_SERVER_OBJECTS)
-	$(CXX) $^ -o $@
+	$(CXX) $(CXX_LIB_PARAMS) $(CXX_LDFLAGS) $^ -o $@
 
 console.cgi: $(HTTP_CLIENT_OBJECTS)
-	$(CXX) $^ -o $@
+	$(CXX) $(CXX_LIB_PARAMS) $(CXX_LDFLAGS) $^ -o $@
 
 $(OBJECTS): %.o: ./src/%.cpp
-	$(CXX) -c $(CXXFLAGS) $(CXX_INCLUDE_PARAMS) $(CXX_LIB_PARAMS) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(CXX_INCLUDE_PARAMS) $< -o $@
 
 clean:
 	rm -f $(TARGETS) *.o
