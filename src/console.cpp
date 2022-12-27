@@ -12,7 +12,7 @@ int main() {
     http_client::client c(io_ctx);
 
     c.connect("localhost", "8787");
-    // c.connect("localhost", "8787");
-    // c.connect("localhost", "8787");
+    c.connect("localhost", "8787");
+    c.connect("localhost", "8787");
     c.complete();
 }

@@ -15,9 +15,15 @@ client::client(boost::asio::io_context & io_ctx)
 }
 
 void client::connect(std::string host, std::string port) {
-    endpoints_ = resolver_.resolve(host, port);
-    ++conns_;
-    do_connect();
+    io_ctx_.notify_fork(boost::asio::io_context::fork_prepare);
+    if (fork() == 0) {
+        io_ctx_.notify_fork(boost::asio::io_context::fork_child);
+        endpoints_ = resolver_.resolve(host, port);
+        do_connect();
+    } else {
+        io_ctx_.notify_fork(boost::asio::io_context::fork_parent);
+        ++conns_;
+    }
 }
 
 void client::complete() {
@@ -41,19 +47,12 @@ void client::do_connect() {
     boost::asio::async_connect(socket_, endpoints_,
         [this](boost::system::error_code ec, tcp::endpoint /*endpoints*/) {
             if (!ec) {
-                io_ctx_.notify_fork(boost::asio::io_context::fork_prepare);
-                if (fork() == 0) {
-                    io_ctx_.notify_fork(boost::asio::io_context::fork_child);
-                    do_read();
-                } else {
-                    io_ctx_.notify_fork(boost::asio::io_context::fork_parent);
-                    socket_.close();
-                }
+                do_read();
             } else {
-                --conns_;
                 exit(EXIT_SUCCESS);
             }
         });
+    io_ctx_.run();
 }
 
 void client::do_read() {
