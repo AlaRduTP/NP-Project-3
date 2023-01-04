@@ -137,9 +137,12 @@ void session::work() {
         if (parsing_header) {
             s += std::string(buf);
             size_t pos = 0;
-            while ((pos = s.find("\r\n")) != std::string::npos) {
+            while ((pos = s.find('\n')) != std::string::npos) {
                 std::string line = s.substr(0, pos);
-                s.erase(0, pos + 2);
+                if (pos && s[pos - 1] == '\r') {
+                    line.erase(pos - 1, std::string::npos);
+                }
+                s.erase(0, pos + 1);
                 resp.add_header(line);
                 if (line.empty()) {
                     do_write(resp.header().c_str(), resp.header().length());
